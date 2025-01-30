@@ -1,21 +1,30 @@
 <script setup>
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline'
+import axiosClient from '../axios'
+import router from '../router'
+import useUserStore from '../store/user'
+import { computed } from 'vue'
 
-const user = {
-    name: 'Tom Cook',
-    email: 'tom@example.com',
-    imageUrl:
-        'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-}
+const userStore = useUserStore()
+
+const user = computed(() => userStore.user)
+
 const navigation = [
     { name: 'Upload', to: {name: 'Home'}},
     { name: 'My images', to: {name: 'MyImages'}},
 ]
 
 function logout() {
-    console.log('logout')
-    // logout logic
+    axiosClient.post('/logout').then(response => {
+        
+        document.cookie = "XSRF-TOKEN=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        document.cookie = "laravel_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        
+        router.push({ name: 'Login' });
+    }).catch(error => {
+        console.log(error.response.data);
+    });
 }
 </script>
 
@@ -45,7 +54,7 @@ function logout() {
                                     <MenuButton
                                         class="relative flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-none">
                                         <span class="sr-only">Open user menu</span>
-                                        <img class="h-8 w-8 rounded-full" :src="user.imageUrl" alt="" />
+                                        <img class="h-8 w-8 rounded-full" src="https://i.pinimg.com/736x/46/72/f8/4672f876389036583190d93a71aa6cb2.jpg" alt="" />
                                     </MenuButton>
                                 </div>
                                 <transition enter-active-class="transition ease-out duration-100"
@@ -87,7 +96,8 @@ function logout() {
                 <div class="border-t border-gray-700 pt-4 pb-3">
                     <div class="flex items-center px-5">
                         <div class="shrink-0">
-                            <img class="h-10 w-10 rounded-full" :src="user.imageUrl" alt="" />
+                            <img class="h-10 w-10 rounded-full"
+                            src="https://i.pinimg.com/736x/46/72/f8/4672f876389036583190d93a71aa6cb2.jpg" alt="" />
                         </div>
                         <div class="ml-3">
                             <div class="text-base font-medium text-white">{{ user.name }}</div>
