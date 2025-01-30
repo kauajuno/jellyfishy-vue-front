@@ -1,26 +1,35 @@
 <script setup>
-const images = [
-    {
-        id: 1,
-        label: 'Image 1',
-        url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    },
-    {
-        id: 2,
-        label: 'Image 2',
-        url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80', 
-    },
-    {
-        id: 3,
-        label: 'Image 3',
-        url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    },
-    {
-        id: 4,
-        label: 'Image 4',
-        url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+import { onMounted, ref } from 'vue';
+import axiosClient from '../axios';
+
+const images = ref([]);
+
+function deleteImage(id){
+
+    if(!confirm('Are you sure you want to delete this image?')){
+        return;
     }
-]
+
+    axiosClient.delete(`/api/image/${id}`).then(response => {
+        images.value = images.value.filter(image => image.id !== id);
+    }).catch(error => {
+        console.log(error.response.data);
+    });
+}
+
+async function copyImageUrl(url){
+    await navigator.clipboard.writeText(url);
+}
+
+onMounted(() => {
+    axiosClient.get('/api/image').then(response => {
+        console.log(response.data);
+        images.value = response.data;
+    }).catch(error => {
+        console.log(error.response.data);
+    });
+});
+
 </script>
 
 <template>
@@ -32,7 +41,7 @@ const images = [
     <main>
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                <div v-for="image in images" :key="image.id" class="bg-white overflow-hidden shadow rounded-lg">
+                <div v-for="image in images" :key="image.id" class="bg-white overflow-hidden shadow rounded-lg py-2">
                     <img :src="image.url" alt="Image" class="w-full h-48 object-contain">
                     <div class="px-4 py-4">
                         <h3 class="text-lg font-semibold text-gray-900">{{ image.name }}</h3>
