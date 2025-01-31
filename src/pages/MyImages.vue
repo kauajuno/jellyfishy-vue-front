@@ -22,8 +22,7 @@ async function copyImageUrl(url){
 }
 
 onMounted(() => {
-    axiosClient.get('/api/image').then(response => {
-        console.log(response.data);
+    axiosClient.get('api/image/').then(response => {
         images.value = response.data;
     }).catch(error => {
         console.log(error.response.data);

@@ -8,12 +8,17 @@ const data = ref({
     label: '',
 });
 
+const justSent = ref(false);
+
 function submit(){
     const formData = new FormData();
     formData.append('image', data.value.image);
     formData.append('label', data.value.label);
     axiosClient.post('/api/image', formData).then(response => {
-        console.log(response.data);
+        justSent.value = true;
+        setTimeout(() => {
+            justSent.value = false;
+        }, 5000);
     }).catch(error => {
         console.log(error.response.data);
     });
@@ -36,11 +41,12 @@ function submit(){
                             <PhotoIcon class="mx-auto size-12 text-gray-300" aria-hidden="true" />
                             <div class="mt-4 flex text-sm/6 text-gray-600">
                                 <label for="file-upload"
-                                    class="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 focus-within:outline-hidden hover:text-indigo-500">
+                                    class="relative cursor-pointer font-semibold text-indigo-600 focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 focus-within:outline-hidden hover:text-indigo-500">
                                     <span>Upload a file</span>
                                     <input id="file-upload" name="file-upload" type="file" @change="data.image = $event.target.files[0]" class="sr-only" />
                                 </label>
-                                <p class="pl-1">or drag and drop</p>
+                                <p class="pl-1" v-if="data.image">Currently selected: {{ data.image.name }} </p>
+                                <p class="pl-1" v-else>from your machine</p>
                             </div>
                             <p class="text-xs/5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
                         </div>
@@ -53,6 +59,7 @@ function submit(){
                             class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
                     </div>
                 </div>
+                <div v-if="justSent" class="bg-green-500 text-white font-bold rounded-md mb-4 px-3 py-1.5">Image uploaded successfully!</div>
                 <button type="submit"
                     class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Submit</button>
 
